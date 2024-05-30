@@ -10,7 +10,7 @@ const Login = () => {
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold text-center">Welcome to Sneat!</h2>
+          <h2 className="text-2xl font-bold text-center">Welcome to learnpage!</h2>
           <form className="mt-8 space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
