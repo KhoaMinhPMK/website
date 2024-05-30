@@ -19,7 +19,7 @@ const Header = () => {
         </nav>
         <div className="flex space-x-4 ml-8">
           <Link to="/signup" className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded">Join</Link>
-          <Link to="/login" className="border border-white hover:bg-white hover:text-black text-white py-2 px-4 rounded">Log In</Link> {/* Ensure this link is lowercase */}
+          <Link to="/login" className="border border-white hover:bg-white hover:text-black text-white py-2 px-4 rounded">Log In</Link>
         </div>
       </div>
     </header>
