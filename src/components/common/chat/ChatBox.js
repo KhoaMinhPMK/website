@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa'; // Bạn cần cài đặt react-icons cho đoạn mã này
-
 const ChatBox = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -29,8 +28,10 @@ const ChatBox = () => {
             >
               {message.text}
             </div>
+             
           ))}
         </div>
+        
       </div>
       <div className="p-4 bg-gray-100 flex items-center">
         <input

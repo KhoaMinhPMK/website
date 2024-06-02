@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { BiFilter, BiSearch, BiHomeAlt, BiMessageRounded, BiLogOut, BiChevronDown, BiBookBookmark, BiHistory, BiBookmarkHeart } from 'react-icons/bi'; 
-import { BiSolidBot } from "react-icons/bi";
+import { useNavigate } from 'react-router-dom';
+import { BiFilter, BiSearch, BiHomeAlt, BiMessageRounded, BiLogOut, BiChevronDown, BiBookBookmark, BiHistory, BiBookmarkHeart, BiSolidBot } from 'react-icons/bi';
+
 const Sidebar = () => {
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
 
   const toggleSubmenu = () => {
     setSubmenuOpen(!submenuOpen);
@@ -11,6 +13,16 @@ const Sidebar = () => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  const navigateHome = () => {
+    navigate('/home');
   };
 
   return (
@@ -30,7 +42,7 @@ const Sidebar = () => {
           className="text-[15px] ml-4 w-full bg-transparent focus:outline-none"
         />
       </div>
-      <div className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white">
+      <div className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white" onClick={navigateHome}>
         <BiHomeAlt />
         <span className="text-[15px] ml-4 text-gray-200 font-bold">Home</span>
       </div>
@@ -52,7 +64,7 @@ const Sidebar = () => {
         <div className="cursor-pointer p-2 hover:bg-blue-600 rounded-md mt-1 flex items-center"><BiHistory className="mr-2" /> <span>History</span></div>
         <div className="cursor-pointer p-2 hover:bg-blue-600 rounded-md mt-1 flex items-center"><BiBookmarkHeart className="mr-2" /> <span>Bookmark</span></div>
       </div>
-      <div className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white">
+      <div className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white" onClick={handleLogout}>
         <BiLogOut />
         <span className="text-[15px] ml-4 text-gray-200 font-bold">Logout</span>
       </div>

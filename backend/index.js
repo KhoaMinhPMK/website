@@ -1,22 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const app = express();
 const port = 3001;
 
-// Enable CORS for all routes
 app.use(cors());
 
-// Thiết lập kết nối với cơ sở dữ liệu MySQL
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'admin', // Thay your_username bằng tên người dùng MySQL của bạn
-  password: '123123', // Thay your_password bằng mật khẩu của bạn
-  database: 'learnpage' // Thay your_database bằng tên cơ sở dữ liệu của bạn
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
-// Kết nối tới cơ sở dữ liệu
 connection.connect(err => {
   if (err) {
     console.error('Error connecting to database: ' + err.stack);
@@ -25,27 +25,64 @@ connection.connect(err => {
   console.log('Connected to database as id ' + connection.threadId);
 });
 
-// Sử dụng body-parser middleware để phân tích dữ liệu JSON từ yêu cầu POST
 app.use(bodyParser.json());
-
-// Endpoint để xử lý yêu cầu đăng ký
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
   const { email, password, name, phone } = req.body;
-  const INSERT_USER_QUERY = `INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)`;
-  connection.query(INSERT_USER_QUERY, [email, password, name, phone], (error, results) => {
+  console.log(`Signup request received: ${email}, ${name}, ${phone}`);
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const INSERT_USER_QUERY = `INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)`;
+    connection.query(INSERT_USER_QUERY, [email, hashedPassword, name, phone], (error, results) => {
+      if (error) {
+        console.error('Error inserting user: ' + error);
+        res.status(500).json({ success: false, message: 'Error inserting user' });
+      } else {
+        console.log('User inserted successfully');
+        res.status(200).json({ success: true, message: 'User inserted successfully' });
+      }
+    });
+  } catch (error) {
+    console.error('Error hashing password: ' + error);
+    res.status(500).json({ success: false, message: 'Error processing request' });
+  }
+});
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  console.log(`Login request received: ${email}`);
+
+  const CHECK_USER_QUERY = `SELECT * FROM users WHERE email = ?`;
+
+  connection.query(CHECK_USER_QUERY, [email], async (error, results) => {
     if (error) {
-      console.error('Error inserting user: ' + error);
-      res.status(500).send('Error inserting user');
+      console.error('Error checking user: ' + error);
+      res.status(500).json({ success: false, message: 'Error checking user', error: error.message });
+    } else if (results.length > 0) {
+      const user = results[0];
+      console.log(`User found: ${user.email}`);
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (passwordMatch) {
+        console.log('Password match');
+        const token = jwt.sign({ email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        console.log('Sending user data:', { name: user.name, email: user.email });
+        res.status(200).json({
+          success: true,
+          message: 'User logged in successfully',
+          token: token,
+          user: { name: user.name, email: user.email } // Đảm bảo trường user được gửi về
+        });
+      } else {
+        console.error('Invalid password');
+        res.status(401).json({ success: false, message: 'Invalid password' });
+      }
     } else {
-      console.log('User inserted successfully');
-      // Bao gồm tiêu đề 'Access-Control-Allow-Origin' trong phản hồi
-      res.header('Access-Control-Allow-Origin', '*'); // Điều này sẽ cho phép tất cả các nguồn gốc gửi yêu cầu đến máy chủ của bạn
-      res.status(200).send('User inserted successfully');
+      console.error('Email not found');
+      res.status(401).json({ success: false, message: 'Email not found' });
     }
   });
 });
-
-// Khởi chạy server
+// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });

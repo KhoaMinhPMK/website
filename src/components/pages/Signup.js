@@ -24,20 +24,26 @@ const Signup = () => {
     try {
       const response = await Axios.post('http://localhost:3001/signup', formData); // Thay đổi URL thành cổng 3001
       console.log(response.data); // Log response from server
-      // Optionally, redirect user to a new page or show a success message
+
+      // Kiểm tra phản hồi từ server
+      if (response.data.success) {
+        window.alert('Đăng ký thành công!');
+        window.location.href = '/login';
+      } else {
+        window.alert('Đăng ký thất bại, vui lòng thử lại.');
+      }
     } catch (error) {
       console.error('Error signing up:', error);
-      // Optionally, display an error message to the user
+      window.alert('Đăng ký thất bại, vui lòng thử lại.');
     }
   };
-  
 
   return (
     <div>
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold text-center">Welcome to Sneat!</h2>
+          <h2 className="text-2xl font-bold text-center">Welcome to LearnPage!</h2>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}> {/* Handle form submission */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
